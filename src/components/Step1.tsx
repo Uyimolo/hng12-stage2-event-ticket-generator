@@ -3,6 +3,7 @@ import {
   FormEvent,
   KeyboardEvent,
   SetStateAction,
+  useEffect,
   useState,
 } from "react";
 import eventLogo from "@/assets/svgs/Heading.svg";
@@ -18,9 +19,27 @@ import {
 } from "./ui/select";
 
 const initialTicketType = [
-  { price: "free", type: "regular access", quantity: 20, selected: false },
-  { price: "$150", type: "vip access", quantity: 20, selected: false },
-  { price: "$150", type: "vvip access", quantity: 20, selected: false },
+  {
+    price: "free",
+    type: "Regular",
+    label: "regular access",
+    quantity: 20,
+    selected: false,
+  },
+  {
+    price: "$150",
+    type: "vip",
+    label: "vip access",
+    quantity: 20,
+    selected: false,
+  },
+  {
+    price: "$150",
+    type: "vvip",
+    label: "vvip access",
+    quantity: 20,
+    selected: false,
+  },
 ];
 
 const Step1 = ({
@@ -35,8 +54,20 @@ const Step1 = ({
   setStep: Dispatch<SetStateAction<number>>;
 }) => {
   const [ticketType, setTicketType] = useState(initialTicketType);
-  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [errors, setErrors] = useState("");
+
+  // to select a specific ticket on mount
+  useEffect(() => {
+    if (formData.ticketType) {
+      setTicketType(
+        ticketType.map((ticket) =>
+          ticket.type === formData.ticketType
+            ? { ...ticket, selected: true }
+            : ticket,
+        ),
+      );
+    }
+  }, []);
 
   const selectTicketType = (selectedTicket: string) => {
     const updatedTicketType = ticketType.map((ticket) =>
@@ -135,7 +166,7 @@ const Step1 = ({
                     {ticket.price}
                   </p>
                   <p className="font-roboto text-base text-white">
-                    {ticket.type.toUpperCase()}
+                    {ticket.label.toUpperCase()}
                   </p>
                   <p className="font-roboto text-sm text-white">{`${ticket.quantity}/52`}</p>
                 </div>
@@ -164,7 +195,10 @@ const Step1 = ({
             }
           >
             <SelectTrigger className="h-[47px] w-full border-secondaryColor font-roboto text-white focus:border-white">
-              <SelectValue placeholder="1" />
+              <SelectValue
+                placeholder={`${formData.numberOfTickets.toString()}`}
+                defaultValue={formData.numberOfTickets}
+              />
             </SelectTrigger>
             <SelectContent>
               {[...Array(20)].map((_, index) => (

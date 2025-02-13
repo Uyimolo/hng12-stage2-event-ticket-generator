@@ -1,5 +1,11 @@
 import Image from "next/image";
-import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { useDropzone } from "react-dropzone";
 import cloudDownload from "@/assets/svgs/cloud-download.svg";
 import { cn } from "@/lib/utils";
@@ -55,14 +61,17 @@ const Step2 = ({
   setStep: Dispatch<SetStateAction<number>>;
 }) => {
   const [errors, setErrors] = useState({
-    avatarUrl: "",
+    avatarURL: "",
     fullName: "",
     email: "",
     specialRequest: "",
   });
 
   const [step2Data, setStep2Data] = useState(initialStep2Data);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    formData.avatarURL || null,
+  );
+  const [uploading, setUploading] = useState(false);
 
   const validateField = (name: string, value: string): string => {
     switch (name) {
@@ -80,14 +89,24 @@ const Step2 = ({
         return regex.test(value) ? "" : "Invalid email format";
       }
       case "specialRequest": {
-        return value.trim().length > 200
-          ? "Special request too long (max 200 chars)"
+        return value.trim().length > 60
+          ? "Special request too long (max 60 chars)"
           : "";
       }
       default:
         return "";
     }
   };
+
+  // sync local form data to parent form data
+  useEffect(() => {
+    setStep2Data((prevStep2Data) =>
+      prevStep2Data.map((field) => ({
+        ...field,
+        value: String(formData[field.name as keyof FormDataType] || ""),
+      })),
+    );
+  }, []);
 
   const handleInputChange = (name: string, value: string) => {
     const errorMessage = validateField(name, value);
@@ -98,12 +117,18 @@ const Step2 = ({
       [name]: errorMessage,
     }));
 
-    // Update form state only if valid
+    // Update local form state only if valid
     setStep2Data((prevStep2Data) =>
       prevStep2Data.map((field) =>
         field.name === name ? { ...field, value } : field,
       ),
     );
+
+    // Update parent form state to persist changes
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
   };
 
   const onSubmit = (e: React.FormEvent) => {
@@ -111,7 +136,7 @@ const Step2 = ({
 
     let hasError = false;
     const newErrors: typeof errors = {
-      avatarUrl: "",
+      avatarURL: "",
       fullName: "",
       email: "",
       specialRequest: "",
@@ -177,6 +202,9 @@ const Step2 = ({
   const { getInputProps, getRootProps } = useDropzone({ onDrop });
 
   const uploadImage = async (file: File) => {
+    if (!file) return;
+
+    setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "ticket-generator");
@@ -191,14 +219,15 @@ const Step2 = ({
     );
 
     const data = await response.json();
-    return data.secure_url;
+    if (data) {
+      setUploading(false);
+      return data.secure_url;
+    }
+    // return data.secure_url;
   };
 
   return (
-    <form
-      className="space-y-6"
-      // onSubmit={onSubmit}
-    >
+    <form className="space-y-6" onSubmit={onSubmit}>
       <div className="space-y-3">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <h1 className="font-crimson text-2xl font-thin leading-none text-white md:text-[32px]">
@@ -224,14 +253,16 @@ const Step2 = ({
 
           {/* drag and drop or click upload */}
           <div className="relative">
+            {/* dark box on desktop */}
             <div className="absolute top-1/2 z-0 hidden aspect-[3/1.2] w-full -translate-y-1/2 bg-black/20 md:block"></div>
 
             <div
               {...getRootProps()}
-              className="relative z-10 mx-auto grid aspect-square w-full max-w-[240px] place-content-center gap-4 overflow-hidden rounded-[32px] border-4 border-brightTeal bg-secondaryColor text-white"
+              className="group relative z-10 mx-auto grid aspect-square w-full max-w-[240px] cursor-pointer place-content-center gap-4 overflow-hidden rounded-[32px] border-4 border-brightTeal bg-secondaryColor bg-cover text-white"
+              style={{ backgroundImage: `url(${previewUrl})` }}
             >
               <input {...getInputProps()} />
-              {previewUrl ? (
+              {/* {previewUrl ? (
                 <Image
                   src={previewUrl}
                   alt="Uploaded preview"
@@ -239,18 +270,24 @@ const Step2 = ({
                   height={240}
                   className="aspect-squar h-full w-full rounded-[32px] object-center"
                 />
-              ) : (
-                <>
-                  <Image
-                    src={cloudDownload}
-                    alt="cloud download"
-                    className="mx-auto w-fit"
-                  />
-                  <p className="px-6 text-center">
-                    Drag & drop or click to upload
-                  </p>
-                </>
-              )}
+              ) : ( */}
+              <div
+                className={cn(
+                  previewUrl === null
+                    ? "block"
+                    : "hidden aspect-square w-fit place-content-center gap-2 bg-secondaryColor/70 transition duration-300 group-hover:grid",
+                )}
+              >
+                <Image
+                  src={cloudDownload}
+                  alt="cloud download"
+                  className="mx-auto w-fit"
+                />
+                <p className="px-6 text-center">
+                  Drag & drop or click to upload
+                </p>
+              </div>
+              {/* )} */}
             </div>
           </div>
         </div>
@@ -323,7 +360,7 @@ const Step2 = ({
           <button
             type="submit"
             className="w-full rounded-lg bg-brightTeal px-6 py-3 font-crimson text-base text-white"
-            onClick={() => setStep((prev) => prev + 1)}
+            // onClick={() => setStep((prev) => prev + 1)}
           >
             Next
           </button>

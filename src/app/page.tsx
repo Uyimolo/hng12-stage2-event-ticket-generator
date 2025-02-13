@@ -18,13 +18,21 @@ const initialFormData = {
 };
 
 export default function Home() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<number>(() => {
+    const savedStep = localStorage.getItem("step");
+    return savedStep ? parseInt(savedStep, 10) : 1;
+  });
 
-  const [formData, setFormData] = useState<FormDataType>(initialFormData);
+  const [formData, setFormData] = useState<FormDataType>(() => {
+    const savedFormData = localStorage.getItem("formData");
+    return savedFormData ? JSON.parse(savedFormData) : initialFormData;
+  });
 
+  // Save to localStorage whenever step or formData changes
   useEffect(() => {
-    console.log(formData);
-  }, [formData]);
+    localStorage.setItem("step", step.toString());
+    localStorage.setItem("formData", JSON.stringify(formData));
+  }, [step, formData]);
 
   return (
     <div className="flex min-h-screen w-full flex-col gap-4 bg-[#02191D] px-6 py-4 xl:px-28">
