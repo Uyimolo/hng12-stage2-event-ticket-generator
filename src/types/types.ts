@@ -4,5 +4,5 @@ export type FormDataType = {
   avatarURL: string;
   name: string;
   email: string;
-  aboutProject: string;
+  specialRequest: string;
 };

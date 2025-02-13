@@ -6,6 +6,7 @@ import { HiArrowLongRight } from "react-icons/hi2";
 import Step1 from "@/components/Step1";
 import { FormDataType } from "@/types/types";
 import Step2 from "@/components/Step2";
+import TicketReady from "@/components/TicketReady";
 
 const initialFormData = {
   ticketType: "",
@@ -13,7 +14,7 @@ const initialFormData = {
   avatarURL: "",
   name: "",
   email: "",
-  aboutProject: "",
+  specialRequest: "",
 };
 
 export default function Home() {
@@ -49,7 +50,23 @@ export default function Home() {
             />
           )}
           {/* step two */}
-          {step === 2 && <Step2 />}
+          {step === 2 && (
+            <Step2
+              setStep={setStep}
+              step={step}
+              setFormData={setFormData}
+              formData={formData}
+            />
+          )}
+          {/* step 3 (ticket ready) */}
+          {step === 3 && (
+            <TicketReady
+              setStep={setStep}
+              step={step}
+              setFormData={setFormData}
+              formData={formData}
+            />
+          )}
         </div>
       </div>
     </div>
