@@ -19,25 +19,32 @@ const initialFormData = {
 };
 
 export default function Home() {
-  const [step, setStep] = useState<number>(() => {
-    const savedStep = localStorage.getItem("step");
-    return savedStep ? parseInt(savedStep, 10) : 0;
-  });
+  const [step, setStep] = useState<number>(0);
+  const [formData, setFormData] = useState<FormDataType>(initialFormData);
+  const [isClient, setIsClient] = useState(false);
 
-  const [formData, setFormData] = useState<FormDataType>(() => {
-    const savedFormData = localStorage.getItem("formData");
-    return savedFormData ? JSON.parse(savedFormData) : initialFormData;
-  });
-
-  // Save to localStorage whenever step or formData changes
+  // to ensure localStorage is only used in the client 
   useEffect(() => {
-    localStorage.setItem("step", step.toString());
-    localStorage.setItem("formData", JSON.stringify(formData));
-  }, [step, formData]);
+    setIsClient(true);
+    const savedStep = localStorage.getItem("step");
+    const savedFormData = localStorage.getItem("formData");
+
+    if (savedStep) setStep(parseInt(savedStep, 10));
+    if (savedFormData) setFormData(JSON.parse(savedFormData));
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      localStorage.setItem("step", step.toString());
+      localStorage.setItem("formData", JSON.stringify(formData));
+    }
+  }, [step, formData, isClient]);
 
   useEffect(() => {
     window.scrollTo({ behavior: "smooth", top: 0 }); // scroll to top on step change
   }, [step]);
+
+  if (!isClient) return null; // Prevent rendering on server
 
   return (
     <div className="flex min-h-screen w-full flex-col gap-4 bg-[] bg-[radial-gradient(circle_at_bottom,#0E464F_0%,#02191D_50%)] bg-cover px-6 py-4 md:bg-[radial-gradient(circle_at_bottom,#0E464F_0%,#02191D_50%)] xl:px-28">
@@ -54,7 +61,6 @@ export default function Home() {
         {/* steps */}
         <div className="space-y-8 rounded-[32px] border border-[#0E464F] bg-darkTeal p-6 md:p-12">
           {step === 0 && <Step0 setStep={setStep} />}
-
           {step === 1 && (
             <Step1
               setStep={setStep}
@@ -62,7 +68,6 @@ export default function Home() {
               formData={formData}
             />
           )}
-
           {step === 2 && (
             <Step2
               setStep={setStep}
@@ -70,7 +75,6 @@ export default function Home() {
               formData={formData}
             />
           )}
-
           {step === 3 && (
             <TicketReady
               setStep={setStep}
