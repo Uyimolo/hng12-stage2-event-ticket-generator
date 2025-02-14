@@ -13,7 +13,6 @@ import { FormDataType } from "@/types/types";
 import envelope from "@/assets/svgs/envelope.svg";
 import { BiError } from "react-icons/bi";
 import Button from "./Button";
-import { FaSpinner } from "react-icons/fa6";
 
 const initialStep2Data = [
   {
@@ -98,7 +97,7 @@ const Step2 = ({
     }
   };
 
-  // sync local form data to parent form data
+  // sync local form data to parent form data on page mount
   useEffect(() => {
     setStep2Data((prevStep2Data) =>
       prevStep2Data.map((field) => ({

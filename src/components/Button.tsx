@@ -21,6 +21,7 @@ const Button = ({
 
   return (
     <button
+      type={type}
       className={cn(
         "w-full rounded-lg px-6 py-3 font-JejuMyeongjo text-base text-white",
         buttonClass,

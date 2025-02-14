@@ -1,6 +1,6 @@
 import { FormDataType } from "@/types/types";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useRef } from "react";
+import { Dispatch, SetStateAction } from "react";
 import ticketContainer from "@/assets/svgs/Subtract.svg";
 import eventLogo from "@/assets/svgs/Heading.svg";
 import barCode from "@/assets/svgs/Bar Code.svg";

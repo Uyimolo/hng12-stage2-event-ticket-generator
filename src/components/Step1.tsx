@@ -56,7 +56,7 @@ const Step1 = ({
   const [ticketType, setTicketType] = useState(initialTicketType);
   const [errors, setErrors] = useState("");
 
-  // sync local ticket state to parent formData state
+  // sync local ticket state to parent formData state on page mount
   useEffect(() => {
     if (formData.ticketType) {
       setTicketType(
@@ -131,8 +131,8 @@ const Step1 = ({
             />
 
             <p className="mx-auto max-w-[300px] text-center font-roboto text-sm text-white">
-              Join us for an unforgettable experience at Techember Fest "25!
-              Secure your spot now.
+              {`Join us for an unforgettable experience at Techember Fest "25!
+              Secure your spot now.`}
             </p>
           </div>
 

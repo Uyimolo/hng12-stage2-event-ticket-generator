@@ -15,8 +15,8 @@ const Step0 = ({ setStep }: { setStep: Dispatch<SetStateAction<number>> }) => {
           />
 
           <p className="mx-auto max-w-[400px] text-center font-roboto text-lg text-white">
-            Join us for an unforgettable experience at Techember Fest "25!{" "}
-            Secure your spot now.
+            {`Join us for an unforgettable experience at Techember Fest "25!{" "}
+            Secure your spot now.`}
           </p>
         </div>
 
