@@ -12,7 +12,7 @@ const initialFormData = {
   ticketType: "",
   numberOfTickets: 1,
   avatarURL: "",
-  name: "",
+  fullName: "",
   email: "",
   specialRequest: "",
 };
@@ -34,20 +34,24 @@ export default function Home() {
     localStorage.setItem("formData", JSON.stringify(formData));
   }, [step, formData]);
 
+  useEffect(() => {
+    console.log(formData);
+  }, [step]);
+
   return (
     <div className="flex min-h-screen w-full flex-col gap-4 bg-[#02191D] px-6 py-4 xl:px-28">
       {/* header */}
-      <div className="flex items-center justify-between rounded-3xl border border-primaryColor px-4 py-3">
+      <div className="mx-2 flex items-center justify-between rounded-3xl border border-primaryColor px-4 py-3">
         <Image src={logo} alt="ticz" />
         <button className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 font-crimson text-base text-[#333333] md:px-6 md:py-4">
-          MY TICKETS <HiArrowLongRight className="text-xl" />
+          MY TICKETS <HiArrowLongRight className="xs:block hidden text-xl" />
         </button>
       </div>
 
       {/* main content */}
       <div className="mx-auto w-full max-w-[700px]">
         {/* step 1 */}
-        <div className="space-y-8 rounded-[32px] border border-[#0E464F] bg-darkTeal p-6 lg:p-12">
+        <div className="space-y-8 rounded-[32px] border border-[#0E464F] bg-darkTeal p-6 md:p-12">
           {/* step one */}
           {step === 1 && (
             <Step1

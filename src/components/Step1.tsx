@@ -150,7 +150,7 @@ const Step1 = ({
             Select Ticket Type:
           </p>
           {/* ticket type */}
-          <div className="flex flex-col gap-4 rounded-3xl border border-secondaryColor p-4 md:flex-row">
+          <div className="flex flex-col gap-4 rounded-3xl border border-secondaryColor relative p-4 md:flex-row">
             {ticketType.map((ticket, index) => (
               <label
                 key={ticket.type}
@@ -180,10 +180,13 @@ const Step1 = ({
                 />
               </label>
             ))}
+
+            {errors && (
+              <p className="absolute -bottom-6 right-2 font-roboto text-sm text-red-400">
+                {errors}
+              </p>
+            )}
           </div>
-          {errors && (
-            <p className="font-roboto text-sm text-red-600">{errors}</p>
-          )}
         </div>
 
         {/* ticket booking quantity */}

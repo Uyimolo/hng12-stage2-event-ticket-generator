@@ -10,11 +10,12 @@ import { useDropzone } from "react-dropzone";
 import cloudDownload from "@/assets/svgs/cloud-download.svg";
 import { cn } from "@/lib/utils";
 import { FormDataType } from "@/types/types";
+import envelope from "@/assets/svgs/envelope.svg";
 
 const initialStep2Data = [
   {
     type: "text",
-    name: "avatarUrl",
+    name: "avatarURL",
     value: "",
     placeholder: "https://avatar.example.com.png",
     label: "Avatar URL",
@@ -68,9 +69,7 @@ const Step2 = ({
   });
 
   const [step2Data, setStep2Data] = useState(initialStep2Data);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(
-    formData.avatarURL || null,
-  );
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const validateField = (name: string, value: string): string => {
@@ -103,7 +102,7 @@ const Step2 = ({
     setStep2Data((prevStep2Data) =>
       prevStep2Data.map((field) => ({
         ...field,
-        value: String(formData[field.name as keyof FormDataType] || ""),
+        value: String(formData[field.name as keyof FormDataType]),
       })),
     );
   }, []);
@@ -164,14 +163,16 @@ const Step2 = ({
     // If errors exist, stop submission
     if (hasError) return;
 
-    // Extract values from `step2Data`
+    // Extract values from step2Data
     const updatedFormData = {
-      avatarURL: step2Data.find((f) => f.name === "avatarUrl")?.value || "",
-      name: step2Data.find((f) => f.name === "fullName")?.value || "",
-      email: step2Data.find((f) => f.name === "email")?.value || "",
+      avatarURL:
+        step2Data.find((field) => field.name === "avatarURL")?.value || "",
+      fullName:
+        step2Data.find((field) => field.name === "fullName")?.value || "",
+      email: step2Data.find((field) => field.name === "email")?.value || "",
       specialRequest:
-        step2Data.find((f) => f.name === "specialRequest")?.value || "",
-      ticketType: formData.ticketType, // Preserve previous steps' data
+        step2Data.find((field) => field.name === "specialRequest")?.value || "",
+      ticketType: formData.ticketType,
       numberOfTickets: formData.numberOfTickets,
     };
 
@@ -193,7 +194,7 @@ const Step2 = ({
     const cloudinaryUrl = await uploadImage(file);
 
     // Update state with Cloudinary URL
-    handleInputChange("avatarUrl", cloudinaryUrl);
+    handleInputChange("avatarURL", cloudinaryUrl);
 
     // Cleanup the object URL after Cloudinary upload to free memory
     URL.revokeObjectURL(localPreviewUrl);
@@ -259,7 +260,9 @@ const Step2 = ({
             <div
               {...getRootProps()}
               className="group relative z-10 mx-auto grid aspect-square w-full max-w-[240px] cursor-pointer place-content-center gap-4 overflow-hidden rounded-[32px] border-4 border-brightTeal bg-secondaryColor bg-cover text-white"
-              style={{ backgroundImage: `url(${previewUrl})` }}
+              style={{
+                backgroundImage: `url(${formData.avatarURL || previewUrl})`,
+              }}
             >
               <input {...getInputProps()} />
               {/* {previewUrl ? (
@@ -296,7 +299,7 @@ const Step2 = ({
 
         {/* form inputs */}
         {step2Data.map((input) => (
-          <div key={input.name} className="flex flex-col space-y-4">
+          <div key={input.name} className="relative flex flex-col space-y-4">
             {input.type === "textarea" ? (
               <>
                 <label
@@ -331,25 +334,36 @@ const Step2 = ({
                 >
                   {input.label}
                 </label>
-                <input
-                  type={input.type}
-                  name={input.name}
-                  value={input.value}
-                  placeholder={input.placeholder}
-                  onChange={(e) =>
-                    handleInputChange(input.name, e.target.value)
-                  }
-                  className={cn(
-                    "rounded-xl border border-secondaryColor bg-transparent p-3 text-white placeholder:text-sm",
-                    input.style,
+                <div className="relative w-full">
+                  <input
+                    type={input.type}
+                    name={input.name}
+                    value={input.value}
+                    placeholder={input.placeholder}
+                    onChange={(e) =>
+                      handleInputChange(input.name, e.target.value)
+                    }
+                    className={cn(
+                      "w-full rounded-xl border border-secondaryColor bg-transparent p-3 text-white placeholder:text-sm",
+                      input.style,
+                      input.name === "email" && "pl-12",
+                    )}
+                  />
+
+                  {input.name === "email" && (
+                    <Image
+                      src={envelope}
+                      alt="envelope icon"
+                      className="absolute left-4 top-1/2 -translate-y-1/2"
+                    />
                   )}
-                />
+                </div>
               </>
             )}
 
             {/* error messages */}
             {errors[input.name as keyof typeof errors] && (
-              <p className="font-roboto text-xs text-red-500">
+              <p className="absolute -bottom-6 right-2 font-roboto text-sm text-red-400">
                 {errors[input.name as keyof typeof errors]}
               </p>
             )}
