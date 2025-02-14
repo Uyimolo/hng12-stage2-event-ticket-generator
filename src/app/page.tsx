@@ -8,6 +8,7 @@ import { FormDataType } from "@/types/types";
 import Step2 from "@/components/Step2";
 import TicketReady from "@/components/TicketReady";
 import Step0 from "@/components/Step0";
+import Link from "next/link";
 
 const initialFormData = {
   ticketType: "",
@@ -18,12 +19,14 @@ const initialFormData = {
   specialRequest: "",
 };
 
+const navItems = ["Events", "My Tickets", "About Project"];
+
 export default function Home() {
   const [step, setStep] = useState<number>(0);
   const [formData, setFormData] = useState<FormDataType>(initialFormData);
   const [isClient, setIsClient] = useState(false);
 
-  // to ensure localStorage is only used in the client 
+  // to ensure localStorage is only used in the client
   useEffect(() => {
     setIsClient(true);
     const savedStep = localStorage.getItem("step");
@@ -51,6 +54,20 @@ export default function Home() {
       {/* header */}
       <div className="mx-2 flex items-center justify-between rounded-3xl border border-primaryColor px-4 py-3">
         <Image src={logo} alt="ticz" />
+
+        <nav className="hidden gap-4 lg:flex">
+          {navItems.map((item, index) => (
+            <Link
+              key={index}
+              href="/"
+              className={`font-roboto text-sm text-white transition duration-300 hover:text-[#d9d9d9] ${
+                index === step ? "border-b-4 border-[#d9d9d9]" : ""
+              }`}
+            >
+              {item}
+            </Link>
+          ))}
+        </nav>
         <button className="flex items-center gap-2 rounded-xl bg-white px-4 py-3 font-JejuMyeongjo text-base text-[#333333] transition duration-300 hover:border-[#d9d9d9] hover:bg-brightTeal hover:text-[#d9d9d9] md:px-6 md:py-4">
           MY TICKETS <HiArrowLongRight className="hidden text-xl xs:block" />
         </button>

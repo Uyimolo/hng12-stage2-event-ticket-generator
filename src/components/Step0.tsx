@@ -15,7 +15,7 @@ const Step0 = ({ setStep }: { setStep: Dispatch<SetStateAction<number>> }) => {
           />
 
           <p className="mx-auto max-w-[400px] text-center font-roboto text-lg text-white">
-            {`Join us for an unforgettable experience at Techember Fest "25!{" "}
+            {`Join us for an unforgettable experience at Techember Fest "25!
             Secure your spot now.`}
           </p>
         </div>
@@ -23,7 +23,7 @@ const Step0 = ({ setStep }: { setStep: Dispatch<SetStateAction<number>> }) => {
         <Button
           variant="secondary"
           className="mx-auto max-w-md"
-          onClick={() => setStep(1)} 
+          onClick={() => setStep(1)}
         >
           Create Your Ticket
         </Button>
