@@ -11,6 +11,8 @@ import cloudDownload from "@/assets/svgs/cloud-download.svg";
 import { cn } from "@/lib/utils";
 import { FormDataType } from "@/types/types";
 import envelope from "@/assets/svgs/envelope.svg";
+import { BiError } from "react-icons/bi";
+import Button from "./Button";
 
 const initialStep2Data = [
   {
@@ -53,12 +55,10 @@ const initialStep2Data = [
 const Step2 = ({
   setFormData,
   formData,
-  step,
   setStep,
 }: {
   setFormData: Dispatch<SetStateAction<FormDataType>>;
   formData: FormDataType;
-  step: number;
   setStep: Dispatch<SetStateAction<number>>;
 }) => {
   const [errors, setErrors] = useState({
@@ -123,7 +123,7 @@ const Step2 = ({
       ),
     );
 
-    // Update parent form state to persist changes
+    // Update parent form state to persist changes (local form state isnt persisted to localStorage)
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
@@ -150,20 +150,20 @@ const Step2 = ({
         hasError = true;
       }
 
-      // Ensure required fields are filled
+      // handle validation for required fields
       if (field.required && !field.value.trim()) {
-        newErrors[field.name as keyof typeof errors] = "This field is required";
+        newErrors[field.name as keyof typeof errors] =
+          field.name === "avatarURL"
+            ? "Please upload an image"
+            : "This field is required";
         hasError = true;
       }
     });
 
-    // Update error state
     setErrors(newErrors);
 
-    // If errors exist, stop submission
     if (hasError) return;
 
-    // Extract values from step2Data
     const updatedFormData = {
       avatarURL:
         step2Data.find((field) => field.name === "avatarURL")?.value || "",
@@ -176,17 +176,16 @@ const Step2 = ({
       numberOfTickets: formData.numberOfTickets,
     };
 
-    // Update parent form state
     setFormData(updatedFormData);
 
     // Move to the next step
-    setStep(step + 1);
+    setStep((prev) => prev + 1);
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
 
-    // Generate local preview URL
+    // Generate previewURL for showing preview of selected file
     const localPreviewUrl = URL.createObjectURL(file);
     setPreviewUrl(localPreviewUrl);
 
@@ -224,14 +223,13 @@ const Step2 = ({
       setUploading(false);
       return data.secure_url;
     }
-    // return data.secure_url;
   };
 
   return (
     <form className="space-y-6" onSubmit={onSubmit}>
       <div className="space-y-3">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h1 className="font-crimson text-2xl font-thin leading-none text-white md:text-[32px]">
+          <h1 className="font-JejuMyeongjo text-2xl font-thin leading-none text-white md:text-[32px]">
             Attendee Details
           </h1>
           <p className="font-roboto text-sm leading-none text-gray-400 md:text-base">
@@ -259,24 +257,19 @@ const Step2 = ({
 
             <div
               {...getRootProps()}
-              className="group relative z-10 mx-auto grid aspect-square w-full max-w-[240px] cursor-pointer place-content-center gap-4 overflow-hidden rounded-[32px] border-4 border-brightTeal bg-secondaryColor bg-cover text-white"
+              className={cn(
+                "group relative z-10 mx-auto grid aspect-square w-full max-w-[240px] cursor-pointer place-content-center gap-4 overflow-hidden rounded-[32px] border-4 border-brightTeal bg-secondaryColor bg-cover text-white",
+                errors.avatarURL && "border-red-400",
+              )}
               style={{
                 backgroundImage: `url(${formData.avatarURL || previewUrl})`,
               }}
             >
               <input {...getInputProps()} />
-              {/* {previewUrl ? (
-                <Image
-                  src={previewUrl}
-                  alt="Uploaded preview"
-                  width={240}
-                  height={240}
-                  className="aspect-squar h-full w-full rounded-[32px] object-center"
-                />
-              ) : ( */}
+
               <div
                 className={cn(
-                  previewUrl === null
+                  !previewUrl === null || !formData.avatarURL
                     ? "block"
                     : "hidden aspect-square w-fit place-content-center gap-2 bg-secondaryColor/70 transition duration-300 group-hover:grid",
                 )}
@@ -289,8 +282,14 @@ const Step2 = ({
                 <p className="px-6 text-center">
                   Drag & drop or click to upload
                 </p>
+
+                {errors.avatarURL && (
+                  <p className="mx-auto mt-4 flex w-fit items-center gap-1 font-roboto text-sm text-red-400">
+                    <BiError className="text-lg text-red-400" />{" "}
+                    {errors.avatarURL}
+                  </p>
+                )}
               </div>
-              {/* )} */}
             </div>
           </div>
         </div>
@@ -319,7 +318,7 @@ const Step2 = ({
                     handleInputChange(input.name, e.target.value)
                   }
                   className={cn(
-                    "h-[127px] rounded-xl border border-secondaryColor bg-transparent p-3 text-white placeholder:text-sm",
+                    "h-[127px] rounded-xl border border-secondaryColor bg-transparent p-3 text-white placeholder:text-sm hover:bg-brightTeal/30",
                     input.style,
                   )}
                 />
@@ -332,7 +331,7 @@ const Step2 = ({
                     input.style,
                   )}
                 >
-                  {input.label}
+                  {`${input.label} ${input.required && "*"}`}
                 </label>
                 <div className="relative w-full">
                   <input
@@ -344,9 +343,11 @@ const Step2 = ({
                       handleInputChange(input.name, e.target.value)
                     }
                     className={cn(
-                      "w-full rounded-xl border border-secondaryColor bg-transparent p-3 text-white placeholder:text-sm",
+                      "w-full rounded-xl border border-secondaryColor bg-transparent p-3 text-white placeholder:text-sm hover:bg-brightTeal/30",
                       input.style,
                       input.name === "email" && "pl-12",
+                      errors[input.name as keyof typeof errors] &&
+                        "border-red-400 outline-transparent",
                     )}
                   />
 
@@ -362,29 +363,25 @@ const Step2 = ({
             )}
 
             {/* error messages */}
-            {errors[input.name as keyof typeof errors] && (
-              <p className="absolute -bottom-6 right-2 font-roboto text-sm text-red-400">
-                {errors[input.name as keyof typeof errors]}
-              </p>
-            )}
+            {errors[input.name as keyof typeof errors] &&
+              input.name !== "avatarURL" && (
+                <p className="absolute -bottom-6 right-2 flex items-center gap-1 font-roboto text-sm text-red-400">
+                  <BiError className="text-lg text-red-400" />{" "}
+                  {errors[input.name as keyof typeof errors]}
+                </p>
+              )}
           </div>
         ))}
 
         <div className="flex flex-col gap-4 md:flex-row-reverse md:gap-6">
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-brightTeal px-6 py-3 font-crimson text-base text-white"
-            // onClick={() => setStep((prev) => prev + 1)}
-          >
-            Next
-          </button>
-          <button
-            type="button"
-            className="w-full rounded-lg border border-primaryColor bg-transparent px-6 py-3 font-crimson text-base text-white"
+          <Button type="submit">Get My Free Ticket</Button>
+
+          <Button
+            variant="secondary"
             onClick={() => setStep((prev) => prev - 1)}
           >
             Back
-          </button>
+          </Button>
         </div>
       </div>
     </form>

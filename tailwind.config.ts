@@ -73,8 +73,8 @@ export default {
       },
     },
     fontFamily: {
-      crimson: "var(--font-crimson)",
       roboto: "var(--font-roboto)",
+      JejuMyeongjo: "var(--font-jeju)",
     },
   },
   plugins: [require("tailwindcss-animate")],

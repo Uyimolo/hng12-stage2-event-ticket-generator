@@ -5,18 +5,16 @@ import ticketContainer from "@/assets/svgs/Subtract.svg";
 import eventLogo from "@/assets/svgs/Heading.svg";
 import barCode from "@/assets/svgs/Bar Code.svg";
 import desktopBarcode from "@/assets/svgs/Desktop Bar Code.svg";
-import bg from "@/assets/pngs/bg.png";
 import domtoimage from "dom-to-image";
+import Button from "./Button";
 
 const TicketReady = ({
   setFormData,
   formData,
-  step,
   setStep,
 }: {
   setFormData: Dispatch<SetStateAction<FormDataType>>;
   formData: FormDataType;
-  step: number;
   setStep: Dispatch<SetStateAction<number>>;
 }) => {
   const captureAndDownload = async () => {
@@ -34,11 +32,24 @@ const TicketReady = ({
       .catch((error: Error) => console.error("Error capturing image:", error));
   };
 
+  const bookNewTicket = () => {
+    setFormData({
+      ticketType: "",
+      numberOfTickets: 1,
+      avatarURL: "",
+      fullName: "",
+      email: "",
+      specialRequest: "",
+    });
+
+    setStep(0);
+  };
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h1 className="font-crimson text-2xl font-thin leading-none text-white md:text-[32px]">
+          <h1 className="font-JejuMyeongjo text-2xl font-thin leading-none text-white md:text-[32px]">
             Ready
           </h1>
           <p className="font-roboto text-sm leading-none text-gray-400 md:text-base">
@@ -143,19 +154,12 @@ const TicketReady = ({
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row-reverse md:gap-6">
-        <button
-          className="w-full rounded-lg bg-brightTeal px-6 py-3 font-crimson text-base text-white"
-          onClick={captureAndDownload}
-        >
-          Download Ticket
-        </button>
-        <button
-          className="w-full rounded-lg border border-primaryColor bg-transparent px-6 py-3 font-crimson text-base text-white"
-          onClick={() => setStep((prev) => prev - 1)}
-        >
-          Back
-        </button>
+      <div className="mt-6 flex flex-col gap-4 md:flex-row-reverse md:gap-6">
+        <Button onClick={captureAndDownload}>Download Ticket</Button>
+
+        <Button variant="secondary" onClick={bookNewTicket}>
+          Book Another Ticket
+        </Button>
       </div>
     </div>
   );

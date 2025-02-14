@@ -17,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { BiError } from "react-icons/bi";
+import Button from "./Button";
 
 const initialTicketType = [
   {
@@ -45,18 +47,16 @@ const initialTicketType = [
 const Step1 = ({
   setFormData,
   formData,
-  step,
   setStep,
 }: {
   setFormData: Dispatch<SetStateAction<FormDataType>>;
   formData: FormDataType;
-  step: number;
   setStep: Dispatch<SetStateAction<number>>;
 }) => {
   const [ticketType, setTicketType] = useState(initialTicketType);
   const [errors, setErrors] = useState("");
 
-  // to select a specific ticket on mount
+  // sync local ticket state to parent formData state
   useEffect(() => {
     if (formData.ticketType) {
       setTicketType(
@@ -84,6 +84,7 @@ const Step1 = ({
     setFormData({ ...formData, numberOfTickets: Number(selectedQuantity) });
   };
 
+  // select ticket type when enter or space key is pressed while a ticket type is focused
   const handleKeyDown = (e: KeyboardEvent, index: number) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -105,7 +106,7 @@ const Step1 = ({
     <form className="space-y-6" onSubmit={onSubmit}>
       <div className="space-y-3">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h1 className="font-crimson text-2xl font-thin leading-none text-white md:text-[32px]">
+          <h1 className="font-JejuMyeongjo text-2xl font-thin leading-none text-white md:text-[32px]">
             Ticket Selection
           </h1>
           <p className="font-roboto text-sm leading-none text-gray-400 md:text-base">
@@ -130,27 +131,28 @@ const Step1 = ({
             />
 
             <p className="mx-auto max-w-[300px] text-center font-roboto text-sm text-white">
-              Join us for an unforgettable experience at [Event Name]! Secure
-              your spot now.
+              Join us for an unforgettable experience at Techember Fest "25!
+              Secure your spot now.
             </p>
           </div>
 
           <p className="text-center font-roboto text-sm leading-7 text-white">
-            📍 [Event Location] <br />
+            📍 04 Rumens road, Ikoyi, Lagos <br />
             March 15, 2025 | 7:00 PM
           </p>
         </div>
 
         {/* divider */}
         <div className="h-1 w-full space-y-2 bg-secondaryColor" />
-        {/* ticket information */}
 
+        {/* ticket information */}
         <div className="space-y-3">
           <p className="font-roboto text-base text-white">
             Select Ticket Type:
           </p>
-          {/* ticket type */}
-          <div className="flex flex-col gap-4 rounded-3xl border border-secondaryColor relative p-4 md:flex-row">
+
+          {/* ticket types */}
+          <div className="relative flex flex-col gap-4 rounded-3xl border border-secondaryColor p-4 md:flex-row">
             {ticketType.map((ticket, index) => (
               <label
                 key={ticket.type}
@@ -182,8 +184,8 @@ const Step1 = ({
             ))}
 
             {errors && (
-              <p className="absolute -bottom-6 right-2 font-roboto text-sm text-red-400">
-                {errors}
+              <p className="absolute -bottom-6 right-2 flex items-center gap-1 font-roboto text-sm text-red-400">
+                <BiError className="text-lg text-red-400" /> {errors}
               </p>
             )}
           </div>
@@ -197,7 +199,7 @@ const Step1 = ({
               handleQuantityChange(selectedQuantity)
             }
           >
-            <SelectTrigger className="h-[47px] w-full border-secondaryColor font-roboto text-white focus:border-white">
+            <SelectTrigger className="h-[47px] w-full border-secondaryColor font-roboto text-white hover:bg-brightTeal/30 focus:border-white">
               <SelectValue
                 placeholder={`${formData.numberOfTickets.toString()}`}
                 defaultValue={formData.numberOfTickets}
@@ -214,21 +216,14 @@ const Step1 = ({
         </div>
 
         <div className="flex flex-col gap-4 md:flex-row-reverse md:gap-6">
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-brightTeal px-6 py-3 font-crimson text-base text-white"
-            // onClick={proceed}
-          >
-            Next
-          </button>
-          <button
-            type="button"
-            className="w-full rounded-lg border border-primaryColor bg-transparent px-6 py-3 font-crimson text-base text-white"
-            // onClick={previous}
-            // find out what the cancel button does or where it leads to before hng mentors eat me raw
+          <Button type="submit">Next</Button>
+
+          <Button
+            variant="secondary"
+            onClick={() => setStep((prev) => prev - 1)}
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </form>
