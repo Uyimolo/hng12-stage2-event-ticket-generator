@@ -13,6 +13,7 @@ import { FormDataType } from "@/types/types";
 import envelope from "@/assets/svgs/envelope.svg";
 import { BiError } from "react-icons/bi";
 import Button from "./Button";
+import { FaSpinner } from "react-icons/fa6";
 
 const initialStep2Data = [
   {
@@ -74,7 +75,7 @@ const Step2 = ({
 
   const validateField = (name: string, value: string): string => {
     switch (name) {
-      case "avatarUrl": {
+      case "avatarURL": {
         const regex =
           /^(https?:\/\/)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})(\/[^\s]*)?$/;
         return regex.test(value) ? "" : "Invalid URL";
@@ -183,7 +184,31 @@ const Step2 = ({
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    // reset errors cause error messages still show when retrying after an error
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      avatarURL: "",
+    }));
+
     const file = acceptedFiles[0];
+
+    // validate file type (image only) can't believe i almost forgot this
+    if (!file.type.startsWith("image/")) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        avatarURL: "Only image files are allowed",
+      }));
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        avatarURL: "File size must be less than 5MB",
+      }));
+      return;
+    }
 
     // Generate previewURL for showing preview of selected file
     const localPreviewUrl = URL.createObjectURL(file);
@@ -205,23 +230,28 @@ const Step2 = ({
     if (!file) return;
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "ticket-generator");
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "ticket-generator");
 
-    const cloudName = process.env.NEXT_PUBLIC_CLOUD_NAME;
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
+      const cloudName = process.env.NEXT_PUBLIC_CLOUD_NAME;
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        { method: "POST", body: formData },
+      );
 
-    const data = await response.json();
-    if (data) {
+      const data = await response.json();
+
+      if (!response.ok)
+        throw new Error(data?.error?.message || "Upload failed");
+
       setUploading(false);
       return data.secure_url;
+    } catch (error) {
+      console.error("Image upload error:", error);
+      setUploading(false);
+      return "";
     }
   };
 
@@ -282,6 +312,10 @@ const Step2 = ({
                 <p className="px-6 text-center">
                   Drag & drop or click to upload
                 </p>
+
+                {uploading && (
+                  <p className="text-center text-sm">Uploading Image...</p>
+                )}
 
                 {errors.avatarURL && (
                   <p className="mx-auto mt-4 flex w-fit items-center gap-1 font-roboto text-sm text-red-400">
