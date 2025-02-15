@@ -1,12 +1,13 @@
 import { FormDataType } from "@/types/types";
 import Image from "next/image";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import ticketContainer from "@/assets/svgs/Subtract.svg";
 import eventLogo from "@/assets/svgs/Heading.svg";
 import barCode from "@/assets/svgs/Bar Code.svg";
 import desktopBarcode from "@/assets/svgs/Desktop Bar Code.svg";
 import domtoimage from "dom-to-image";
 import Button from "./Button";
+// import { toPng } from "html-to-image";
 
 const TicketReady = ({
   setFormData,
@@ -17,19 +18,45 @@ const TicketReady = ({
   formData: FormDataType;
   setStep: Dispatch<SetStateAction<number>>;
 }) => {
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const captureAndDownload = async () => {
     const div = document.getElementById("captureDiv");
     if (!div) return;
 
-    domtoimage
-      .toPng(div as HTMLElement)
-      .then((dataUrl: string) => {
-        const link: HTMLAnchorElement = document.createElement("a");
-        link.href = dataUrl;
-        link.download = "ticket.png";
-        link.click();
-      })
-      .catch((error: Error) => console.error("Error capturing image:", error));
+    setIsGenerating(true);
+
+    try {
+      // await new Promise((resolve) => setTimeout(resolve, 100));
+      const dataUrl = await domtoimage.toPng(div, {
+        // height: div.offsetHeight * 2,
+        // width: div.offsetWidth * 2,
+        // style: {
+        //   transform: "scale(2)",
+        //   // transformOrigin: "top left",
+        //   width: `${div.offsetWidth}px`,
+        //   // height: `${div.offsetHeight}px`,
+        // },
+      });
+
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = "ticket.png";
+      link.click();
+    } catch (error) {
+      console.error("Error capturing image:", error);
+    } finally {
+      setIsGenerating(false);
+    }
+
+    // domtoimage
+    //   .toJpeg(div)
+    //   .then((dataUrl) => {
+    //     const link = document.createElement("a");
+    //     link.href = dataUrl;
+    //     link.download = "ticket.jpeg";
+    //     link.click();
+    //   })
   };
 
   const bookNewTicket = () => {
@@ -73,8 +100,12 @@ const TicketReady = ({
       </div>
 
       <div
-        className="relative mx-auto aspect-[1/2] max-w-[300px]"
+        className="relative mx-auto aspect-[1/2]"
         id="captureDiv"
+        // style={{
+        //   transform: "translateZ(0)",
+        //   backfaceVisibility: "hidden",
+        // }}
       >
         <Image
           src={ticketContainer}
@@ -85,12 +116,7 @@ const TicketReady = ({
 
         <div className="absolute left-1/2 top-6 flex h-[72.5%] w-[calc(100%-24px)] -translate-x-1/2 flex-col justify-between rounded-2xl border border-brightTeal p-[6px] md:top-6 md:h-[446px]">
           <div className="flex flex-col">
-            <Image
-              src={eventLogo}
-              alt="event logo"
-              className="mx-auto w-4/5"
-              priority
-            />
+            <Image src={eventLogo} alt="event logo" className="mx-auto w-4/5" />
 
             <div className="mt-3 flex flex-col gap-1">
               <p className="text-center font-roboto text-[10px] leading-none text-white">
@@ -155,7 +181,9 @@ const TicketReady = ({
       </div>
 
       <div className="mt-6 flex flex-col gap-4 md:flex-row-reverse md:gap-6">
-        <Button onClick={captureAndDownload}>Download Ticket</Button>
+        <Button onClick={captureAndDownload} disabled={isGenerating}>
+          {isGenerating ? "Generating..." : "Download Ticket"}
+        </Button>
 
         <Button variant="secondary" onClick={bookNewTicket}>
           Book Another Ticket

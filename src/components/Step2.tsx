@@ -250,7 +250,6 @@ const Step2 = ({
     } catch (error) {
       console.error("Image upload error:", error);
       setUploading(false);
-      return "";
     }
   };
 

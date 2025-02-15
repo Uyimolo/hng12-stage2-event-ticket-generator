@@ -69,6 +69,19 @@ const Step1 = ({
     }
   }, []);
 
+  const bookNewTicket = () => {
+    setFormData({
+      ticketType: "",
+      numberOfTickets: 1,
+      avatarURL: "",
+      fullName: "",
+      email: "",
+      specialRequest: "",
+    });
+
+    setStep(0);
+  };
+
   const selectTicketType = (selectedTicket: string) => {
     const updatedTicketType = ticketType.map((ticket) =>
       ticket.type === selectedTicket
@@ -218,10 +231,7 @@ const Step1 = ({
         <div className="flex flex-col gap-4 md:flex-row-reverse md:gap-6">
           <Button type="submit">Next</Button>
 
-          <Button
-            variant="secondary"
-            onClick={() => setStep((prev) => prev - 1)}
-          >
+          <Button variant="secondary" onClick={bookNewTicket}>
             Cancel
           </Button>
         </div>

@@ -6,6 +6,7 @@ const Button = ({
   children,
   className = "",
   variant = "primary",
+  disabled = false,
   onClick,
 }: {
   type?: "submit" | "reset" | "button";
@@ -13,6 +14,7 @@ const Button = ({
   onClick?: () => void;
   children: ReactNode;
   variant?: "primary" | "secondary";
+  disabled?: boolean;
 }) => {
   const buttonClass =
     variant === "primary"
@@ -22,6 +24,7 @@ const Button = ({
   return (
     <button
       type={type}
+      disabled={disabled}
       className={cn(
         "w-full rounded-lg px-6 py-3 font-JejuMyeongjo text-base text-white",
         buttonClass,
