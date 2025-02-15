@@ -88,7 +88,7 @@ const Step2 = ({
         return regex.test(value) ? "" : "Invalid email format";
       }
       case "specialRequest": {
-        return value.trim().length > 60
+        return value.trim().length > 150
           ? "Special request too long (max 60 chars)"
           : "";
       }

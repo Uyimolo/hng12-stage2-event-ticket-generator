@@ -5,7 +5,6 @@ import ticketContainer from "@/assets/svgs/Subtract.svg";
 import eventLogo from "@/assets/svgs/Heading.svg";
 import barCode from "@/assets/svgs/Bar Code.svg";
 import desktopBarcode from "@/assets/svgs/Desktop Bar Code.svg";
-import domtoimage from "dom-to-image";
 import Button from "./Button";
 import html2canvas from "html2canvas";
 // import { toPng } from "html-to-image";
@@ -26,7 +25,6 @@ const TicketReady = ({
     setIsGenerating(true);
 
     if (captureRef.current) {
-
       const canvas = await html2canvas(captureRef.current, {
         scale: 2,
         useCORS: true,
@@ -139,9 +137,11 @@ const TicketReady = ({
                 <p className="text-xs text-white">{formData.numberOfTickets}</p>
               </div>
             </div>
-            <div className="flex h-[60px] flex-col gap-1 p-1">
+            <div className="flex min-h-[60px] flex-col gap-1 p-1">
               <p className="text-[10px] text-white/30">Special Request</p>
-              <p className="text-xs text-white">{formData.specialRequest}</p>
+              <p className="line-clamp-3 text-xs text-white">
+                {formData.specialRequest}
+              </p>
             </div>
           </div>
         </div>
