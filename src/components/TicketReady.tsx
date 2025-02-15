@@ -1,12 +1,13 @@
 import { FormDataType } from "@/types/types";
 import Image from "next/image";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 import ticketContainer from "@/assets/svgs/Subtract.svg";
 import eventLogo from "@/assets/svgs/Heading.svg";
 import barCode from "@/assets/svgs/Bar Code.svg";
 import desktopBarcode from "@/assets/svgs/Desktop Bar Code.svg";
 import domtoimage from "dom-to-image";
 import Button from "./Button";
+import html2canvas from "html2canvas";
 // import { toPng } from "html-to-image";
 
 const TicketReady = ({
@@ -19,44 +20,28 @@ const TicketReady = ({
   setStep: Dispatch<SetStateAction<number>>;
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const captureRef = useRef<HTMLDivElement>(null);
 
   const captureAndDownload = async () => {
-    const div = document.getElementById("captureDiv");
-    if (!div) return;
-
     setIsGenerating(true);
 
-    try {
-      // await new Promise((resolve) => setTimeout(resolve, 100));
-      const dataUrl = await domtoimage.toPng(div, {
-        // height: div.offsetHeight * 2,
-        // width: div.offsetWidth * 2,
-        // style: {
-        //   transform: "scale(2)",
-        //   // transformOrigin: "top left",
-        //   width: `${div.offsetWidth}px`,
-        //   // height: `${div.offsetHeight}px`,
-        // },
+    if (captureRef.current) {
+
+      const canvas = await html2canvas(captureRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: null,
       });
 
+      // Convert to image and download
+      const image = canvas.toDataURL("image/png");
       const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = "ticket.png";
+      link.href = image;
+      link.download = "my-div-image.png";
       link.click();
-    } catch (error) {
-      console.error("Error capturing image:", error);
-    } finally {
       setIsGenerating(false);
     }
-
-    // domtoimage
-    //   .toJpeg(div)
-    //   .then((dataUrl) => {
-    //     const link = document.createElement("a");
-    //     link.href = dataUrl;
-    //     link.download = "ticket.jpeg";
-    //     link.click();
-    //   })
   };
 
   const bookNewTicket = () => {
@@ -102,10 +87,7 @@ const TicketReady = ({
       <div
         className="relative mx-auto aspect-[1/2]"
         id="captureDiv"
-        // style={{
-        //   transform: "translateZ(0)",
-        //   backfaceVisibility: "hidden",
-        // }}
+        ref={captureRef}
       >
         <Image
           src={ticketContainer}
